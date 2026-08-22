@@ -1,0 +1,54 @@
+{
+  "name": "keylock-desktop",
+  "version": "0.1.0",
+  "description": "KeyLock: encrypt an API key so only an Android app signed with one specific release keystore can decrypt it. Offline desktop GUI.",
+  "private": true,
+  "main": "dist-electron/electron/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-static.cjs",
+    "start": "npm run build && electron .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate-test-vectors": "node scripts/generate-test-vectors.cjs",
+    "dist": "npm run build && electron-builder"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "electron-updater": "^6.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "typescript": "^5.5.0",
+    "vitest": "^1.6.0"
+  },
+  "build": {
+    "appId": "org.keylock.desktop",
+    "productName": "KeyLock",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "publish": {
+      "provider": "github",
+      "owner": "adnaanaeem",
+      "repo": "keylock"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.developer-tools"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Development"
+    }
+  }
+}

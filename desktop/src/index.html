@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none';"
+  />
+  <title>KeyLock</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>KeyLock</h1>
+    <p class="tagline">Encrypt a secret so only a specific Android signing certificate can decrypt it. Fully offline.</p>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <h2>Keys this session</h2>
+        <button id="new-key-btn" type="button">+ New</button>
+      </div>
+      <ul id="key-list" class="key-list"></ul>
+      <p id="key-list-empty" class="hint">No keys yet. Click "+ New" to encrypt one.</p>
+      <div class="sidebar-decor" aria-hidden="true">☠</div>
+    </aside>
+
+    <section class="editor">
+      <div class="panel">
+        <h2>Encrypt a secret</h2>
+
+        <label for="key-name">Name <span class="hint-inline">(for your reference only, not encrypted)</span></label>
+        <input id="key-name" type="text" placeholder="e.g. OpenAI key" autocomplete="off" />
+
+        <label for="plaintext">Secret value</label>
+        <div class="input-row">
+          <input id="plaintext" type="password" placeholder="Paste the API key / secret" autocomplete="off" />
+          <button id="toggle-plaintext-btn" type="button" class="icon-btn" title="Show/hide">👁</button>
+        </div>
+
+        <label for="fingerprint">
+          Certificate SHA-256 fingerprint <span class="hint-inline">(64 hex chars — public, not secret)</span>
+        </label>
+        <input id="fingerprint" type="text" placeholder="aa:bb:cc:... or a1b2c3..." autocomplete="off" spellcheck="false" />
+        <p class="hint">
+          Type it manually (see <code>keytool</code> command below), or load it directly from a keystore file:
+        </p>
+        <p id="fingerprint-error" class="error hidden"></p>
+
+        <details id="keystore-details" class="keystore-details">
+          <summary>Load from keystore file</summary>
+          <div class="field-row">
+            <button type="button" id="choose-keystore-btn">Choose keystore file&hellip;</button>
+            <span id="keystore-file-label" class="hint">No file selected.</span>
+          </div>
+
+          <label for="keystore-password">Keystore password</label>
+          <input
+            id="keystore-password"
+            type="password"
+            autocomplete="off"
+            placeholder="Used only to read the certificate — never stored"
+          />
+
+          <div id="keystore-alias-row" class="hidden">
+            <label for="keystore-alias-select">Alias <span class="hint-inline">(multiple entries found)</span></label>
+            <select id="keystore-alias-select"></select>
+          </div>
+
+          <button type="button" id="read-keystore-btn">Get fingerprint from keystore</button>
+          <p id="keystore-error" class="error hidden"></p>
+          <p id="keystore-status" class="hint"></p>
+          <p class="hint">
+            This runs your local <code>keytool</code> to read the public certificate fingerprint only. The keystore
+            file and password never leave your machine and are not saved by this app.
+          </p>
+        </details>
+
+        <p class="hint">
+          Manual equivalent: <code>keytool -list -v -keystore your.jks -alias yourAlias</code> or
+          <code>apksigner verify --print-certs app-release.apk</code>. Never paste your actual keystore file or password
+          anywhere except this tool's own keystore loader above — only the resulting fingerprint is meant to be shared.
+        </p>
+
+        <button id="encrypt-btn" type="button" class="primary">Encrypt</button>
+        <p id="encrypt-error" class="error hidden"></p>
+      </div>
+
+      <div id="output-panel" class="panel hidden">
+        <h2>Output</h2>
+        <div class="field-row">
+          <label>iv</label>
+          <input id="out-iv" type="text" readonly />
+          <button type="button" class="icon-btn copy-btn" data-target="out-iv" title="Copy">⧉</button>
+        </div>
+        <div class="field-row">
+          <label>salt</label>
+          <input id="out-salt" type="text" readonly />
+          <button type="button" class="icon-btn copy-btn" data-target="out-salt" title="Copy">⧉</button>
+        </div>
+        <div class="field-row">
+          <label>encryptedKey</label>
+          <input id="out-encryptedKey" type="text" readonly />
+          <button type="button" class="icon-btn copy-btn" data-target="out-encryptedKey" title="Copy">⧉</button>
+        </div>
+
+        <div class="export-buttons">
+          <button id="export-json-btn" type="button">Copy JSON</button>
+          <button id="export-firebase-btn" type="button">Copy Firebase RTDB payload</button>
+          <button id="export-firestore-btn" type="button">Copy Firestore document</button>
+        </div>
+        <p id="export-status" class="hint"></p>
+
+        <button id="load-into-verify-btn" type="button">Use this output in "Verify round-trip" below</button>
+      </div>
+
+      <div class="panel">
+        <h2>Verify round-trip</h2>
+        <p class="hint">
+          Paste back iv / salt / encryptedKey and the fingerprint to confirm decryption works before you ship this
+          payload anywhere.
+        </p>
+        <div class="field-row">
+          <label>iv</label>
+          <input id="verify-iv" type="text" />
+        </div>
+        <div class="field-row">
+          <label>salt</label>
+          <input id="verify-salt" type="text" />
+        </div>
+        <div class="field-row">
+          <label>encryptedKey</label>
+          <input id="verify-encryptedKey" type="text" />
+        </div>
+        <div class="field-row">
+          <label>fingerprint</label>
+          <input id="verify-fingerprint" type="text" spellcheck="false" />
+        </div>
+        <button id="verify-btn" type="button" class="primary">Decrypt &amp; verify</button>
+        <p id="verify-result" class="hint"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <button id="self-test-btn" type="button">Run built-in self-test</button>
+    <span id="self-test-status" class="hint"></span>
+  </footer>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

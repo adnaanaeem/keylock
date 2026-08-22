@@ -1,0 +1,28 @@
+# Node / Electron
+node_modules/
+dist/
+dist-electron/
+release/
+*.log
+npm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Gradle / Android
+.gradle/
+build/
+*.iml
+.idea/
+local.properties
+captures/
+.cxx/
+*.apk
+*.aab
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/

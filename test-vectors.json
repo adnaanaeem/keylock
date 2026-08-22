@@ -1,0 +1,15 @@
+{
+  "description": "Known-answer test (KAT) vector. Fixed inputs -> fixed expected ciphertext. Both the desktop (Node) and Android (Kotlin) implementations must reproduce expectedEncryptedKeyBase64 exactly. Do not treat fingerprint as a real app's certificate — it is a synthetic incrementing-byte pattern chosen only for reproducibility.",
+  "fingerprint": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "saltBase64": "oKGio6SlpqeoqaqrrK2urw==",
+  "ivBase64": "sLGys7S1tre4ubq7",
+  "plaintext": "KeyLock-KAT-vector-secret-value-2026",
+  "expectedEncryptedKeyBase64": "iE1RmzDPdRRIa5q+cO5utX7D3YRTvKMEwW+JFnv/zEsB+9WupcVxpUx+j1IqdsM6Ijoszg==",
+  "params": {
+    "pbkdf2Iterations": 100000,
+    "keyLengthBytes": 32,
+    "saltLengthBytes": 16,
+    "ivLengthBytes": 12,
+    "authTagLengthBytes": 16
+  }
+}
