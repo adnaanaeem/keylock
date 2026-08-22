@@ -18,6 +18,7 @@ export interface KeyLockBridge {
     password: string
   ) => Promise<{ ok: true; entries: KeystoreCertificateEntry[] } | { ok: false; error: string }>;
   openExternal: (url: string) => Promise<void>;
+  showMenu: () => Promise<void>;
 }
 
 const bridge: KeyLockBridge = {
@@ -28,6 +29,7 @@ const bridge: KeyLockBridge = {
   readKeystoreCertificates: (keystorePath, password) =>
     ipcRenderer.invoke("keylock:readKeystoreCertificates", keystorePath, password),
   openExternal: (url) => ipcRenderer.invoke("keylock:openExternal", url),
+  showMenu: () => ipcRenderer.invoke("keylock:showMenu"),
 };
 
 contextBridge.exposeInMainWorld("keylock", bridge);

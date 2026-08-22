@@ -113,6 +113,10 @@ function hideOutput(): void {
   outputPanel.classList.add("hidden");
 }
 
+$<HTMLButtonElement>("menu-btn").addEventListener("click", () => {
+  void window.keylock.showMenu();
+});
+
 togglePlaintextBtn.addEventListener("click", () => {
   plaintextInput.type = plaintextInput.type === "password" ? "text" : "password";
 });

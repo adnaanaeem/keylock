@@ -138,37 +138,23 @@ function checkForUpdates(manual: boolean): void {
   });
 }
 
+/**
+ * The app has no native OS menu bar — instead the renderer's hamburger button
+ * (top-right of the header) asks main to pop this up at the cursor, via the
+ * "keylock:showMenu" IPC handler below. Keeping it a flat list (rather than
+ * File/Edit/Help submenus) suits a single-purpose dropdown better than a menu bar.
+ */
 function buildAppMenu(): Menu {
-  const aboutItem: MenuItemConstructorOptions = { label: "About KeyLock", click: () => void openAboutWindow() };
-  const checkUpdatesItem: MenuItemConstructorOptions = {
-    label: "Check for Updates…",
-    click: () => checkForUpdates(true),
-  };
-  const repoItem: MenuItemConstructorOptions = {
-    label: "View on GitHub",
-    click: () => void shell.openExternal(`https://github.com/${GITHUB_USERNAME}/${GITHUB_REPO}`),
-  };
-
-  const template: MenuItemConstructorOptions[] = [];
-
-  if (process.platform === "darwin") {
-    template.push({
-      label: app.name,
-      submenu: [aboutItem, { type: "separator" }, checkUpdatesItem, repoItem, { type: "separator" }, { role: "quit" }],
-    });
-    template.push({ label: "Edit", submenu: [{ role: "cut" }, { role: "copy" }, { role: "paste" }] });
-  } else {
-    template.push({
-      label: "File",
-      submenu: [{ role: "quit" }],
-    });
-  }
-
-  template.push({
-    label: "Help",
-    submenu: process.platform === "darwin" ? [repoItem] : [aboutItem, checkUpdatesItem, { type: "separator" }, repoItem],
-  });
-
+  const template: MenuItemConstructorOptions[] = [
+    { label: "About KeyLock", click: () => void openAboutWindow() },
+    { label: "Check for Updates…", click: () => checkForUpdates(true) },
+    {
+      label: "View on GitHub",
+      click: () => void shell.openExternal(`https://github.com/${GITHUB_USERNAME}/${GITHUB_REPO}`),
+    },
+    { type: "separator" },
+    { role: "quit", label: "Quit" },
+  ];
   return Menu.buildFromTemplate(template);
 }
 
@@ -273,6 +259,8 @@ function parseKeystoreEntries(keytoolOutput: string): KeystoreCertificateEntry[]
   return entries;
 }
 
+let mainWindow: BrowserWindow | null = null;
+
 function createWindow(): void {
   const win = new BrowserWindow({
     width: 1000,
@@ -285,6 +273,10 @@ function createWindow(): void {
       nodeIntegration: false,
       sandbox: true,
     },
+  });
+  mainWindow = win;
+  win.on("closed", () => {
+    if (mainWindow === win) mainWindow = null;
   });
   // index.html/styles.css are copied alongside the compiled renderer.js into
   // dist-electron/src by scripts/copy-static.cjs (see package.json "build"),
@@ -364,7 +356,12 @@ app.whenReady().then(() => {
     }
   });
 
-  Menu.setApplicationMenu(buildAppMenu());
+  ipcMain.handle("keylock:showMenu", () => {
+    buildAppMenu().popup({ window: mainWindow ?? undefined });
+  });
+
+  // No native OS menu bar — the renderer's hamburger button pops buildAppMenu() up instead.
+  Menu.setApplicationMenu(null);
   createWindow();
   checkForUpdates(false);
 

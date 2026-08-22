@@ -72,6 +72,17 @@ body::before {
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-raised);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hamburger-btn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 16px;
+  line-height: 1;
 }
 
 .app-header h1 {
