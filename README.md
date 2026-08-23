@@ -2,10 +2,31 @@
 
 Encrypt a secret (an API key, a token, anything) so that it can only be decrypted by an Android app signed with **one specific release keystore**. The encrypted output is safe to commit, ship in your APK, or store in Firebase — without your desktop, your CI, or a MITM ever seeing the plaintext.
 
+<p>
+  <a href="https://github.com/adnaanaeem/keylock/releases/latest">
+    <img alt="Download KeyLock for Windows" src="https://img.shields.io/badge/Download-KeyLock%20for%20Windows-33cc66?style=for-the-badge&logo=windows&logoColor=white">
+  </a>
+  <a href="https://github.com/adnaanaeem/keylock/releases/latest">
+    <img alt="Latest release" src="https://img.shields.io/github/v/release/adnaanaeem/keylock?style=for-the-badge&color=1c3b22&labelColor=0b120c">
+  </a>
+</p>
+
 KeyLock is two pieces:
 
 - **`desktop/`** — an offline Electron GUI that encrypts a secret against a signing certificate's SHA-256 fingerprint (typed in, or read directly from a keystore file).
 - **`android/keylock-decryptor`** — a small, dependency-free Kotlin library you drop into your Android app. At runtime it reads the *running app's own* signing certificate and uses it to decrypt the payload KeyLock produced.
+
+## Screenshots
+
+<p>
+  <img src="docs/screenshots/main-window.png" alt="KeyLock main window" width="700"><br>
+  <sub>Encrypt a secret, load the fingerprint from a keystore file, verify the round-trip — all offline.</sub>
+</p>
+<p>
+  <img src="docs/screenshots/about-window.png" alt="KeyLock About window" width="320">
+  <br>
+  <sub>Help ▸ About KeyLock, the one screen that talks to the network (a single GitHub profile fetch, done in the main process).</sub>
+</p>
 
 ## Threat model
 
@@ -77,6 +98,8 @@ npm run build          # type-check + compile
 cd android
 ./gradlew :keylock-decryptor:test   # JVM known-answer tests, no device/emulator needed
 ```
+
+Needs `ANDROID_HOME` set to your Android SDK path (Android Studio sets this up already if you open the project there).
 
 ## License
 
