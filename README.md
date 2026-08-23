@@ -22,11 +22,6 @@ KeyLock is two pieces:
   <img src="docs/screenshots/main-window.png" alt="KeyLock main window" width="700"><br>
   <sub>Encrypt a secret, load the fingerprint from a keystore file, verify the round-trip — all offline.</sub>
 </p>
-<p>
-  <img src="docs/screenshots/about-window.png" alt="KeyLock About window" width="320">
-  <br>
-  <sub>Help ▸ About KeyLock, the one screen that talks to the network (a single GitHub profile fetch, done in the main process).</sub>
-</p>
 
 ## Threat model
 
